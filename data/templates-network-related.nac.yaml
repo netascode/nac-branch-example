@@ -1,0 +1,48 @@
+meraki:
+  template:
+    networks:
+      - name: nw_setup
+        product_types:
+                - appliance
+                - switch
+                - wireless
+                - cellularGateway
+        time_zone: ${time_zone}
+        notes: ${network_notes}
+        tags:
+          - small_branch
+      - name: nw_management
+        settings:
+          local_status_page_enabled: true
+          remote_status_page: true
+          secure_port: false
+          local_status_page_authentication:
+            username: ${local_page_username}
+            password: !env secret_password
+          named_vlans: true
+        snmp:
+          access: users
+          users:
+            - username: ${snmp_username}
+              passphrase: !env secret_password
+        syslog_servers:
+          - host: ${syslog_server}
+            port: ${syslog_port}
+            roles:
+              - Switch event log
+              - Air Marshal events
+              - Flows
+              - URLs
+              - Wireless event log
+              - Appliance event log
+      - name: group_policies
+        group_policies:
+          - name: ${data_vlan_group_policy}
+            vlan_tagging:
+              vlan_id: 10
+          - name: ${voice_vlan_group_policy}
+            vlan_tagging:
+              vlan_id: 20
+          - name: ${iot_vlan_group_policy}
+            vlan_tagging:
+              vlan_id: 30

@@ -1,0 +1,118 @@
+meraki:
+  template:
+    networks:
+      - name: wireless
+        wireless:
+          settings:
+            upgrade_strategy: minimizeUpgradeTime
+            meshing: false
+          rf_profiles:
+            - name: Corp wireless rf profile
+              band_selection_type: ssid
+              is_indoor_default: true
+              min_bitrate_type: band
+              per_ssid_settings:
+                - ssid_name: ${guest_wireless_ssid_name}
+                  band_operation_mode: dual
+                  band_steering: true
+                  bands:
+                    - "2.4"
+                    - "5"
+                - ssid_name: ${data_wireless_ssid_name}
+                  band_operation_mode: dual
+                  band_steering: true
+                  bands:
+                    - "2.4"
+                    - "5"
+                    - "6"
+              transmission: true
+          ssids:
+            - name: ${data_wireless_ssid_name}
+              auth_mode: 8021x-radius
+              available_on_all_aps: true
+              band_selection: Dual band operation with Band Steering
+              default_vlan_id: 10
+              dot11r:
+                enabled: true
+              dot11w:
+                enabled: true
+                required: false
+              enabled: true             
+              encryption_mode: wpa-eap
+              firewall_l3_firewall_rules:
+                allow_lan_access: true
+              ip_assignment_mode: Bridge mode
+              lan_isolation: false
+              radius:
+                accounting: true
+                accounting_servers:
+                  - host: ${radius_accounting_server1_host}
+                    port: 1813
+                    secret: !env secret_password
+                  - host: ${radius_accounting_server2_host}
+                    port: 1813
+                    secret: !env secret_password
+                attribute_for_group_policies: Filter-Id
+                coa: false
+                override: true
+                servers:
+                  - host: ${radius_server1_host}
+                    port: 1812
+                    secret: !env secret_password
+                  - host: ${radius_server2_host}
+                    port: 1812
+                    secret: !env secret_password
+                testing: true
+              unavailability_schedules:
+                enabled: ${data_ssid_schedules_enabled}
+                ranges:
+                  - start_day: Sunday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Sunday
+                  - start_day: Saturday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Saturday
+              ssid_number: '0'
+              traffic_shaping_rules:
+                traffic_shaping: true
+                default_rules: true
+              use_vlan_tagging: true
+              visible: true
+              wpa_encryption_mode: WPA2 only
+            - name: ${guest_wireless_ssid_name}
+              auth_mode: open
+              available_on_all_aps: true
+              band_selection: Dual band operation
+              default_vlan_id: 50
+              enabled: true 
+              firewall_l3_firewall_rules:
+                allow_lan_access: false
+              ip_assignment_mode: Bridge mode
+              lan_isolation: true
+              mandatory_dhcp: true
+              per_client_bandwidth_limit_down: ${guest_wireless_client_bw_down}
+              per_client_bandwidth_limit_up: ${guest_wireless_client_bw_up}
+              per_ssid_bandwidth_limit_down: ${guest_wireless_ssid_bw_down}
+              per_ssid_bandwidth_limit_up: ${guest_wireless_ssid_bw_up}
+              unavailability_schedules:
+                enabled: ${guest_ssid_schedules_enabled}
+                ranges:
+                  - start_day: Sunday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Sunday
+                  - start_day: Saturday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Saturday
+              splash_page: Click-through splash page
+              splash_settings:
+                welcome_message: ${guest_ssid_welcome_message}
+              ssid_number: '1'
+              traffic_shaping_rules:
+                traffic_shaping: true
+                default_rules: true
+              use_vlan_tagging: true
+              visible: true

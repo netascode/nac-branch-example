@@ -1,0 +1,269 @@
+meraki:
+  domains:
+    - name: !env domain
+      administrator:
+        name: admin
+      organizations:
+        - name: !env org_name
+          managed: true
+          networks:
+            - name: Unified Branch 1
+              templates: [nw_setup, nw_management, switch, wireless, app_settings, app_vlans, app_fw, app_content, app_static_routes, group_policies]
+              variables:
+                syslog_server: 3.4.5.6
+                syslog_port: 514
+                snmp_username: snmpuser
+                local_page_username: localuser
+                appliance_01_name: Branch1-appliance-01
+                access_switch_01_name: Branch1-Cat9300-01
+                access_switch_02_name: Branch1-Cat9300-02
+                access_stack_01_name: Access-Stack-01
+                ap_01_name: Branch1-ap-01
+                ap_02_name: Branch1-ap-02
+                lat: 40.7128
+                lng: -74.0060
+                address: New York, NY
+                vlan10_subnet: 10.1.10.0/24
+                vlan10_appliance_ip: 10.1.10.1
+                vlan20_subnet: 10.1.20.0/24
+                vlan20_appliance_ip: 10.1.20.1
+                vlan30_subnet: 10.1.30.0/24
+                vlan30_appliance_ip: 10.1.30.1
+                vlan50_subnet: 10.1.50.0/24
+                vlan50_appliance_ip: 10.1.50.1
+                vlan999_subnet: 10.1.255.0/24
+                vlan999_appliance_ip: 10.1.255.1
+                data_wireless_ssid_name: Data
+                data_vlan_group_policy: Employees
+                voice_vlan_group_policy: Voice
+                iot_vlan_group_policy: Iot
+                data_ssid_schedules_enabled: true
+                guest_wireless_ssid_name: Guest
+                guest_wireless_client_bw_down: 0
+                guest_wireless_client_bw_up: 0
+                guest_wireless_ssid_bw_down: 0
+                guest_wireless_ssid_bw_up: 0
+                guest_ssid_schedules_enabled: true
+                guest_ssid_welcome_message: Unauthorized access is prohibited.
+                radius_accounting_server1_host: 172.16.1.1
+                radius_accounting_server1_port: 1813
+                radius_accounting_server2_host: 172.16.1.2
+                radius_server1_host: 172.16.1.1
+                radius_server1_port: 1812
+                radius_server2_host: 172.16.1.2
+                static_route1_subnet: 10.100.10.0/24
+                static_route1_gw: 10.1.10.2
+                static_route2_subnet: 10.100.20.0/24
+                static_route2_gw: 10.1.20.2
+                splash_reply_to_email_address: example@example.com
+                switch_mtu_size: 9176
+                time_zone: America/New_York
+                network_notes: This is a small branch network created via Netascode.
+            - name: Unified Branch 2
+              templates: [nw_setup, nw_management, switch, wireless, app_settings, app_vlans, app_fw, app_content, app_static_routes, group_policies]
+              variables:
+                syslog_server: 3.4.5.6
+                syslog_port: 514
+                snmp_username: snmpuser
+                local_page_username: localuser
+                appliance_01_name: Branch2-appliance-01
+                access_switch_01_name: Branch2-Cat9300-01
+                access_switch_02_name: Branch2-Cat9300-02
+                access_stack_01_name: Access-Stack-01
+                ap_01_name: Branch2-ap-01
+                ap_02_name: Branch2-ap-02
+                lat: 37.41809510000001
+                lng: -122.098531
+                address: Wake Forest, N.C.
+                vlan10_subnet: 10.2.10.0/24
+                vlan10_appliance_ip: 10.2.10.1
+                vlan20_subnet: 10.2.20.0/24
+                vlan20_appliance_ip: 10.2.20.1
+                vlan30_subnet: 10.2.30.0/24
+                vlan30_appliance_ip: 10.2.30.1
+                vlan50_subnet: 10.2.50.0/24
+                vlan50_appliance_ip: 10.2.50.1
+                vlan999_subnet: 10.2.255.0/24
+                vlan999_appliance_ip: 10.2.255.1
+                data_wireless_ssid_name: Data
+                data_vlan_group_policy: Employees
+                voice_vlan_group_policy: Voice
+                iot_vlan_group_policy: Iot
+                data_ssid_schedules_enabled: true
+                guest_wireless_ssid_name: Guest
+                guest_wireless_client_bw_down: 0
+                guest_wireless_client_bw_up: 0
+                guest_wireless_ssid_bw_down: 0
+                guest_wireless_ssid_bw_up: 0
+                guest_ssid_schedules_enabled: true
+                guest_ssid_welcome_message: Unauthorized access is prohibited.
+                radius_accounting_server1_host: 172.16.2.1
+                radius_accounting_server1_port: 1813
+                radius_accounting_server2_host: 172.16.2.2
+                radius_server1_host: 172.16.2.1
+                radius_server1_port: 1812
+                radius_server2_host: 172.16.2.2
+                static_route1_subnet: 10.101.10.0/24
+                static_route1_gw: 10.2.10.2
+                static_route2_subnet: 10.101.20.0/24
+                static_route2_gw: 10.2.20.2
+                splash_reply_to_email_address: example@example.com
+                switch_mtu_size: 9176
+                time_zone: America/New_York
+                network_notes: This is a small branch network created via Netascode.
+            - name: Unified Branch 3
+              templates: [nw_setup, nw_management, switch, wireless, app_settings, app_vlans, app_fw, app_content, app_static_routes, group_policies]
+              variables:
+                syslog_server: 3.4.5.6
+                syslog_port: 514
+                snmp_username: snmpuser
+                local_page_username: localuser
+                appliance_01_name: Branch3-appliance-01
+                access_switch_01_name: Branch3-Cat9300-01
+                access_switch_02_name: Branch3-Cat9300-02
+                access_stack_01_name: Access-Stack-01
+                ap_01_name: Branch3-ap-01
+                ap_02_name: Branch3-ap-02
+                lat: 34.0522
+                lng: -118.2437
+                address: Los Angeles, CA
+                vlan10_subnet: 10.3.10.0/24
+                vlan10_appliance_ip: 10.3.10.1
+                vlan20_subnet: 10.3.20.0/24
+                vlan20_appliance_ip: 10.3.20.1
+                vlan30_subnet: 10.3.30.0/24
+                vlan30_appliance_ip: 10.3.30.1
+                vlan50_subnet: 10.3.50.0/24
+                vlan50_appliance_ip: 10.3.50.1
+                vlan999_subnet: 10.3.255.0/24
+                vlan999_appliance_ip: 10.3.255.1
+                data_wireless_ssid_name: Data
+                data_vlan_group_policy: Employees
+                voice_vlan_group_policy: Voice
+                iot_vlan_group_policy: Iot
+                data_ssid_schedules_enabled: true
+                guest_wireless_ssid_name: Guest
+                guest_wireless_client_bw_down: 0
+                guest_wireless_client_bw_up: 0
+                guest_wireless_ssid_bw_down: 0
+                guest_wireless_ssid_bw_up: 0
+                guest_ssid_schedules_enabled: true
+                guest_ssid_welcome_message: Unauthorized access is prohibited.
+                radius_accounting_server1_host: 172.16.3.1
+                radius_accounting_server1_port: 1813
+                radius_accounting_server2_host: 172.16.3.2
+                radius_server1_host: 172.16.3.1
+                radius_server1_port: 1812
+                radius_server2_host: 172.16.3.2
+                static_route1_subnet: 10.102.10.0/24
+                static_route1_gw: 10.3.10.2
+                static_route2_subnet: 10.102.20.0/24
+                static_route2_gw: 10.3.20.2
+                splash_reply_to_email_address: example@example.com
+                switch_mtu_size: 9176
+                time_zone: America/Los_Angeles
+                network_notes: This is a small branch network created via Netascode.
+            - name: Unified Branch 4
+              templates: [nw_setup, nw_management, switch, wireless, app_settings, app_vlans, app_fw, app_content, app_static_routes, group_policies]
+              variables:
+                syslog_server: 3.4.5.6
+                syslog_port: 514
+                snmp_username: snmpuser
+                local_page_username: localuser
+                appliance_01_name: Branch4-appliance-01
+                access_switch_01_name: Branch4-Cat9300-01
+                access_switch_02_name: Branch4-Cat9300-02
+                access_stack_01_name: Access-Stack-01
+                ap_01_name: Branch4-ap-01
+                ap_02_name: Branch4-ap-02
+                lat: 41.8781
+                lng: -87.6298
+                address: Chicago, IL
+                vlan10_subnet: 10.4.10.0/24
+                vlan10_appliance_ip: 10.4.10.1
+                vlan20_subnet: 10.4.20.0/24
+                vlan20_appliance_ip: 10.4.20.1
+                vlan30_subnet: 10.4.30.0/24
+                vlan30_appliance_ip: 10.4.30.1
+                vlan50_subnet: 10.4.50.0/24
+                vlan50_appliance_ip: 10.4.50.1
+                vlan999_subnet: 10.4.255.0/24
+                vlan999_appliance_ip: 10.4.255.1
+                data_wireless_ssid_name: Data
+                data_vlan_group_policy: Employees
+                voice_vlan_group_policy: Voice
+                iot_vlan_group_policy: Iot
+                data_ssid_schedules_enabled: true
+                guest_wireless_ssid_name: Guest
+                guest_wireless_client_bw_down: 0
+                guest_wireless_client_bw_up: 0
+                guest_wireless_ssid_bw_down: 0
+                guest_wireless_ssid_bw_up: 0
+                guest_ssid_schedules_enabled: true
+                guest_ssid_welcome_message: Unauthorized access is prohibited.
+                radius_accounting_server1_host: 172.16.4.1
+                radius_accounting_server1_port: 1813
+                radius_accounting_server2_host: 172.16.4.2
+                radius_server1_host: 172.16.4.1
+                radius_server1_port: 1812
+                radius_server2_host: 172.16.4.2
+                static_route1_subnet: 10.103.10.0/24
+                static_route1_gw: 10.4.10.2
+                static_route2_subnet: 10.103.20.0/24
+                static_route2_gw: 10.4.20.2
+                splash_reply_to_email_address: example@example.com
+                switch_mtu_size: 9176
+                time_zone: America/Chicago
+                network_notes: This is a small branch network created via Netascode.
+            - name: Unified Branch 5
+              templates: [nw_setup, nw_management, switch, wireless, app_settings, app_vlans, app_fw, app_content, app_static_routes, group_policies]
+              variables:
+                syslog_server: 3.4.5.6
+                syslog_port: 514
+                snmp_username: snmpuser
+                local_page_username: localuser
+                appliance_01_name: Branch5-appliance-01
+                access_switch_01_name: Branch5-Cat9300-01
+                access_switch_02_name: Branch5-Cat9300-02
+                access_stack_01_name: Access-Stack-01
+                ap_01_name: Branch5-ap-01
+                ap_02_name: Branch5-ap-02
+                lat: 29.7604
+                lng: -95.3698
+                address: Houston, TX
+                vlan10_subnet: 10.5.10.0/24
+                vlan10_appliance_ip: 10.5.10.1
+                vlan20_subnet: 10.5.20.0/24
+                vlan20_appliance_ip: 10.5.20.1
+                vlan30_subnet: 10.5.30.0/24
+                vlan30_appliance_ip: 10.5.30.1
+                vlan50_subnet: 10.5.50.0/24
+                vlan50_appliance_ip: 10.5.50.1
+                vlan999_subnet: 10.5.255.0/24
+                vlan999_appliance_ip: 10.5.255.1
+                data_wireless_ssid_name: Data
+                data_vlan_group_policy: Employees
+                voice_vlan_group_policy: Voice
+                iot_vlan_group_policy: Iot
+                data_ssid_schedules_enabled: true
+                guest_wireless_ssid_name: Guest
+                guest_wireless_client_bw_down: 0
+                guest_wireless_client_bw_up: 0
+                guest_wireless_ssid_bw_down: 0
+                guest_wireless_ssid_bw_up: 0
+                guest_ssid_schedules_enabled: true
+                guest_ssid_welcome_message: Unauthorized access is prohibited.
+                radius_accounting_server1_host: 172.16.5.1
+                radius_accounting_server1_port: 1813
+                radius_accounting_server2_host: 172.16.5.2
+                radius_server1_host: 172.16.5.1
+                radius_server1_port: 1812
+                radius_server2_host: 172.16.5.2
+                static_route1_subnet: 10.104.10.0/24
+                static_route1_gw: 10.5.10.2
+                static_route2_subnet: 10.104.20.0/24
+                static_route2_gw: 10.5.20.2
+                splash_reply_to_email_address: example@example.com
+                switch_mtu_size: 9176
+                time_zone: America/Chicago
+                network_notes: This is a small branch network created via Netascode.

@@ -1,0 +1,13 @@
+*.log
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+workspaces/.terraform
+workspaces/.terraform.lock.hcl
+workspaces/terraform.tfstate
+workspaces/terraform.tfstate.backup
+workspaces/merged_configuration.nac.yaml
+.env
+tflint.hcl
+tests/results

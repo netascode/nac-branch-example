@@ -1,0 +1,123 @@
+meraki:
+  template:
+    networks:
+      - name: switch
+        switch:
+          access_policies:
+            - name: "Wired Access Policy"
+              radius_servers:
+                - host: ${radius_server1_host}
+                  port: ${radius_server1_port}
+                  secret: !env secret_password
+              radius_accounting_servers:
+                - host: ${radius_accounting_server1_host}
+                  port: ${radius_accounting_server1_port}
+                  secret: !env secret_password
+              radius_accounting: true
+              radius_coa_support: true
+              radius_testing: true
+              radius_group_attribute: "11"
+              host_mode: Multi-Host
+              voice_vlan_clients: true
+              access_policy_type: Hybrid authentication
+              radius:
+                re_authentication_interval: 86400
+              dot1x_control_direction: both
+              url_redirect_walled_garden: false
+          settings:
+            vlan: 999
+            use_combined_power: false
+            uplink_client_sampling: true
+            mac_blocklist: false
+          mtu:
+            default_mtu_size: ${switch_mtu_size}
+          routing_multicast:
+            default_settings:
+              igmp_snooping: true
+              flood_unknown_multicast_traffic: false
+          dscp_to_cos_mappings:
+            - cos: 0
+              dscp: 8
+              title: Scavenger CS1
+            - cos: 0
+              dscp: 10
+              title: Bulk AF11
+            - cos: 0
+              dscp: 12
+              title: Bulk AF12
+            - cos: 0
+              dscp: 14
+              title: Bulk AF13
+            - cos: 1
+              dscp: 0
+              title: Default CS0
+            - cos: 2
+              dscp: 16
+              title: Network Mgmt CS2
+            - cos: 2
+              dscp: 18
+              title: Transactional Data AF21
+            - cos: 2
+              dscp: 20
+              title: Transactional Data AF22
+            - cos: 2
+              dscp: 22
+              title: Transactional Data AF23
+            - cos: 2
+              dscp: 24
+              title: Signaling CS3
+            - cos: 3
+              dscp: 26
+              title: Multimedia Streaming AF31
+            - cos: 3
+              dscp: 28
+              title: Multimedia Streaming AF32
+            - cos: 3
+              dscp: 30
+              title: Multimedia Streaming AF33
+            - cos: 3
+              dscp: 40
+              title: Broadcast Video CS5
+            - cos: 4
+              dscp: 32
+              title: Realtime Interactive CS4
+            - cos: 4
+              dscp: 34
+              title: Multimedia Conferencing AF41
+            - cos: 4
+              dscp: 36
+              title: Multimedia Conferencing AF42
+            - cos: 4
+              dscp: 38
+              title: Multimedia Conferencing AF43
+            - cos: 5
+              dscp: 44
+              title: Admission-Controlled Voice EF
+            - cos: 5
+              dscp: 46
+              title: Voice EF
+            - cos: 5
+              dscp: 48
+              title: Internetwork Control CS6
+            - cos: 5
+              dscp: 56
+              title: Network Control CS7
+          qos_rules:
+              - vlan: 20
+                protocol: ANY
+                dscp: -1
+                qos_rule_name: Trust_DSCP_Voice_VLAN
+              - vlan: 30
+                protocol: ANY
+                dscp: -1
+                qos_rule_name: Remark_Guest_to_Default
+              - vlan: 10
+                protocol: UDP
+                source_port_range: 16384-32767
+                destination_port_range: 16385-32767
+                dscp: 46
+                qos_rule_name: Voice_to_EF_Data_VLAN
+              - vlan: 10
+                protocol: ANY
+                dscp: -1
+                qos_rule_name: Other_to_Default_Data_VLAN

@@ -1,0 +1,157 @@
+meraki:
+  template:
+    networks:
+      - name: app_settings
+        appliance:
+                settings:
+                  client_tracking_method: "MAC address"
+                  deployment_mode: routed
+                  dynamic_dns:
+                    prefix: "my-network"
+                    enabled: true
+
+      - name: app_vlans
+        appliance:
+          vlans:
+            - vlan_id: 10
+              name: "Data"
+              subnet: ${vlan10_subnet}
+              appliance_ip: ${vlan10_appliance_ip}
+              ipv6:
+                enabled: false
+              dhcp_handling: "Run a DHCP server"
+              # dhcp_handling: "Relay DHCP to another server"
+              # dhcp_relay_server_ips:
+              #   - ${corp_dhcp_server1}
+              #   - ${corp_dhcp_server2}
+              mandatory_dhcp: false
+            - vlan_id: 20
+              name: "Voice"
+              subnet: ${vlan20_subnet}
+              appliance_ip: ${vlan20_appliance_ip}
+              ipv6:
+                enabled: false
+              dhcp_handling: "Run a DHCP server"
+              # dhcp_handling: "Relay DHCP to another server"
+              # dhcp_relay_server_ips:
+              #   - ${corp_dhcp_server1}
+              #   - ${corp_dhcp_server2}
+              mandatory_dhcp: false
+            - vlan_id: 30
+              name: "Iot"
+              subnet: ${vlan30_subnet}
+              appliance_ip: ${vlan30_appliance_ip}
+              ipv6:
+                enabled: false
+              dhcp_handling: "Run a DHCP server"
+              # dhcp_handling: "Relay DHCP to another server"
+              # dhcp_relay_server_ips:
+              #   - ${corp_dhcp_server1}
+              #   - ${corp_dhcp_server2}
+              mandatory_dhcp: false
+            - vlan_id: 50
+              name: "Guest"
+              subnet: ${vlan50_subnet}
+              appliance_ip: ${vlan50_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: opendns
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              mandatory_dhcp: true
+            - vlan_id: 999
+              name: "Infra"
+              subnet: ${vlan999_subnet}
+              appliance_ip: ${vlan999_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: opendns
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              mandatory_dhcp: false
+              # fixed_ip_assignments:
+              #  ip: 10.250.1.11
+              #  name: 6c:c3:b2:7e:ae:0a
+      - name: app_fw
+        appliance:
+          firewall:
+                  l3_firewall_rules:
+                      rules:
+                      - comment: "Block Bad Traffic"
+                        policy: deny
+                        protocol: udp
+                        source_port: 1433
+                        source_cidr: Any
+                        destination_port: 1433
+                        destination_cidr: Any
+                      - comment: "Block SSH"
+                        policy: deny
+                        protocol: tcp
+                        source_port: 22
+                        source_cidr: Any
+                        destination_port: 22
+                        destination_cidr: Any
+                  firewalled_services:
+                      - service_name: "ICMP"
+                        access: "blocked"
+                      - service_name: "web"
+                        access: "restricted"
+                        allowed_ips:
+                          - "2.2.2.2"
+                          - "3.3.3.3"
+                      - service_name: "SNMP"
+                        access: "unrestricted"
+                  l7_firewall_rules:
+                      - policy: deny
+                        type: applicationCategory
+                        value: "meraki:layer7/category/27"
+                      - policy: deny
+                        type: application
+                        value: "meraki:layer7/application/106"
+                      - policy: deny
+                        type: host
+                        value: "abc.com"
+                      - policy: deny
+                        type: port
+                        value: "161"
+                      - policy: deny
+                        type: ipRange
+                        value: "192.168.0.1"
+                      - policy: deny
+                        type: ipRange
+                        value: "192.168.0.2:80"
+      - name: app_content
+        appliance:
+            content_filtering:
+                allowed_url_patterns:
+                      - "www.cisco.com"
+                      - "*.meraki.com"
+                blocked_url_patterns:
+                      - www.porn.com
+                      - www.socialmedia.net
+                      - www.example.badsitehere.com
+                blocked_url_categories:
+                      - "meraki:contentFiltering/category/C6"
+                      - "meraki:contentFiltering/category/C69"
+                      - "meraki:contentFiltering/category/C55"
+                      - "meraki:contentFiltering/category/C47"
+                      - "meraki:contentFiltering/category/C84"
+                      - "meraki:contentFiltering/category/C22"
+                      - "meraki:contentFiltering/category/T01"
+                      - "meraki:contentFiltering/category/T03"
+                      - "meraki:contentFiltering/category/T14"
+                      - "meraki:contentFiltering/category/T05"
+                      - "meraki:contentFiltering/category/T02"
+                      - "meraki:contentFiltering/category/C36"
+                url_category_list_size: fullList
+      - name: app_static_routes
+        appliance:
+          static_routes:
+            - name: Static Route 01
+              subnet: ${static_route1_subnet}
+              gateway_ip: ${static_route1_gw}
+            - name: Static Route 02
+              subnet: ${static_route2_subnet}
+              gateway_ip: ${static_route2_gw}
