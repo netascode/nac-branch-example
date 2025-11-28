@@ -6,7 +6,6 @@ stages:
   - plan
   - deploy
   - test
-  - notify
 
 variables:
   GIT_SSL_NO_VERIFY: "true"
@@ -207,36 +206,4 @@ test-idempotency:
     - deploy
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-
-failure:
-  stage: notify
-  script:
-    - python3 .ci/webex-notification-gitlab.py -f
-  when: on_failure
-  artifacts:
-    when: always
-    paths:
-      - tests/results/*.html
-      - tests/results/xunit.xml
-      - plan.txt
-      - fmt_output.txt
-      - validate_output.txt
-      - test_output.txt
-  cache: []
-
-success:
-  stage: notify
-  script:
-    - python3 .ci/webex-notification-gitlab.py -s
-  when: on_success
-  artifacts:
-    when: always
-    paths:
-      - tests/results/*.html
-      - tests/results/xunit.xml
-      - plan.txt
-      - fmt_output.txt
-      - validate_output.txt
-      - test_output.txt
-  cache: []
 
