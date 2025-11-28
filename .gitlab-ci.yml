@@ -1,0 +1,242 @@
+image: danischm/nac:0.1.6
+
+stages:
+  - prepare 
+  - validate
+  - plan
+  - deploy
+  - test
+  - notify
+
+variables:
+  GIT_SSL_NO_VERIFY: "true"
+
+  GITLAB_TOKEN:
+    description: "User Access Token. Used to create comments on Merge Requests"
+  TF_HTTP_USERNAME:
+    description: "GitLab Username"
+    value: "gitlab-ci-token"
+  TF_HTTP_PASSWORD:
+    description: "GitLab Access Token"
+    value: "${CI_JOB_TOKEN}"
+  WEBEX_ROOM_ID:
+    description: "Cisco Webex Room ID"
+  WEBEX_TOKEN:
+    description: "Cisco Webex Bot Token"
+  GITLAB_API_URL:
+    description: "GitLab API v4 root URL"
+    value: "${CI_API_V4_URL}"
+  TF_HTTP_ADDRESS:
+    description: "GitLab HTTP Address to store the TF state file"
+    value: "${GITLAB_API_URL}/projects/${CI_PROJECT_ID}/terraform/state/tfstate"
+  TF_HTTP_LOCK_ADDRESS:
+    description: "GitLab HTTP Address to lock the TF state file"
+    value: ${TF_HTTP_ADDRESS}/lock
+  TF_HTTP_LOCK_METHOD:
+    description: "Method to lock TF state file"
+    value: POST
+  TF_HTTP_UNLOCK_ADDRESS:
+    description: "GitLab HTTP Address to unlock the TF state file"
+    value: ${TF_HTTP_ADDRESS}/lock
+  TF_HTTP_UNLOCK_METHOD:
+    description: "Method to unlock TF state file"
+    value: DELETE
+
+cache:
+  key: terraform_modules_and_lock
+  paths:
+    - .terraform
+    - .terraform.lock.hcl
+
+prepare:
+  stage: prepare
+  rules:
+    - if: '$CI_COMMIT_BRANCH != null'
+  script:
+    - cd workspaces
+    - terraform init || { echo "❌ terraform init failed."; exit 1; }
+    - terraform apply -auto-approve || { echo "❌ terraform apply failed."; exit 1; }
+    - |
+      if [ ! -f merged_configuration.nac.yaml ]; then
+        echo "❌ merged_configuration.nac.yaml not found!"
+        exit 1
+      else
+        echo "✅ merged_configuration.nac.yaml created successfully."
+      fi
+  artifacts:
+    paths:
+      - workspaces/merged_configuration.nac.yaml
+    when: always
+    expire_in: 1 week
+  allow_failure: false
+
+validate:
+  stage: validate
+  needs:
+    - prepare
+  script:
+    - echo "🔍 Checking Terraform formatting..."
+    - terraform fmt -check | tee fmt_output.txt
+    - |
+      if grep -qE '\.tf' fmt_output.txt; then
+        echo "❌ One or more Terraform files are not formatted correctly. Run 'terraform fmt' to fix them."
+        exit 1
+      else
+        echo "✅ All Terraform files are properly formatted."
+      fi
+    - echo "🔍 Running nac-validate..."
+    - nac-validate ./workspaces/merged_configuration.nac.yaml | tee validate_output.txt
+    - |
+      if grep -q "ERROR" validate_output.txt; then
+        echo "❌ nac-validate failed with errors."
+        exit 1
+      else
+        echo "✅ nac-validate passed."
+      fi
+  artifacts:
+    when: always
+    paths:
+      - fmt_output.txt
+      - validate_output.txt
+  cache: []
+  dependencies:
+    - prepare
+  rules:
+    - if: '$CI_COMMIT_BRANCH != null'
+
+plan:
+  stage: plan
+  resource_group: meraki
+  script:
+    - rm -rf .terraform/modules
+    - terraform get -update
+    - terraform init -input=false
+    - terraform plan -out=plan.tfplan -input=false
+    - terraform show -no-color plan.tfplan > plan.txt
+    - terraform show -json plan.tfplan | jq > plan.json
+    - terraform show -json plan.tfplan | jq '([.resource_changes[]?.change.actions?]|flatten)|{"create":(map(select(.=="create"))|length),"update":(map(select(.=="update"))|length),"delete":(map(select(.=="delete"))|length)}' > plan_gitlab.json
+    - cat .terraform/modules/modules.json | jq '[.Modules[] | {Key, Source, Version}]' > modules.json
+    - python3 .ci/gitlab-comment.py
+  artifacts:
+    when: always
+    paths:
+      - plan.json
+      - plan.txt
+      - plan.tfplan
+      - plan_gitlab.json
+      - modules.json
+    reports:
+      terraform: plan_gitlab.json
+  dependencies: []
+  needs:
+    - validate
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy:
+  stage: deploy
+  resource_group: meraki
+  script:
+    - terraform init -input=false
+    - terraform apply -input=false -auto-approve plan.tfplan
+    - terraform show -no-color plan.tfplan > plan.txt
+  artifacts:
+    when: always
+    paths:
+      - defaults.yaml
+      - plan.tfplan
+      - plan.txt
+  dependencies:
+    - plan
+  needs:
+    - plan
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+test-integration:
+  stage: test
+  script:
+    - set -o pipefail && nac-test -d workspaces/merged_configuration.nac.yaml -t ./tests/templates -o ./tests/results |& tee test_output.txt
+    - echo "Remove the cached file after execution"
+  artifacts:
+    when: always
+    paths:
+      - tests/results/*.html
+      - tests/results/xunit.xml
+      - test_output.txt
+      - resolved.yaml
+    reports:
+      junit: tests/results/xunit.xml
+  dependencies:
+    - deploy
+    - prepare
+  needs:
+    - deploy
+    - prepare
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+test-idempotency:
+  stage: test
+  resource_group: meraki
+  script:
+    - terraform init -input=false
+    - terraform plan -input=false -out=idempotency.tfplan -detailed-exitcode || exit_code=$?
+    - terraform show -no-color idempotency.tfplan > idempotency_plan.txt
+    - terraform show -json idempotency.tfplan | jq '.' > idempotency_plan.json
+    - |
+      if [ "$exit_code" -eq 2 ]; then
+        echo "❌ Terraform plan detected changes! Idempotency test failed."
+        echo "🗜️ Showing plan output:"
+        cat idempotency_plan.txt
+        exit 1
+      elif [ "$exit_code" -eq 0 ]; then
+        echo "✅ Terraform is idempotent. No changes detected."
+      else
+        echo "⚠️ Terraform plan failed with an unexpected exit code: $exit_code"
+        exit $exit_code
+      fi
+  artifacts:
+    when: always
+    paths:
+      - idempotency_plan.txt
+      - idempotency.tfplan
+  dependencies:
+    - deploy
+  needs:
+    - deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+failure:
+  stage: notify
+  script:
+    - python3 .ci/webex-notification-gitlab.py -f
+  when: on_failure
+  artifacts:
+    when: always
+    paths:
+      - tests/results/*.html
+      - tests/results/xunit.xml
+      - plan.txt
+      - fmt_output.txt
+      - validate_output.txt
+      - test_output.txt
+  cache: []
+
+success:
+  stage: notify
+  script:
+    - python3 .ci/webex-notification-gitlab.py -s
+  when: on_success
+  artifacts:
+    when: always
+    paths:
+      - tests/results/*.html
+      - tests/results/xunit.xml
+      - plan.txt
+      - fmt_output.txt
+      - validate_output.txt
+      - test_output.txt
+  cache: []
+
