@@ -5,6 +5,10 @@ meraki:
         name: admin
       organizations:
         - name: !env org_name
+          admins:
+          - name: baclab-user
+            email: !env org_email
+            organization_access: full
           managed: true
           networks:
             - name: Unified Branch 1
