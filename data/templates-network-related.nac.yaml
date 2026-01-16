@@ -29,12 +29,12 @@ meraki:
           - host: ${syslog_server}
             port: ${syslog_port}
             roles:
-              - Switch event log
+              - Switch Event log
               - Air Marshal events
               - Flows
               - URLs
-              - Wireless event log
-              - Appliance event log
+              - Wireless Event log
+              - Appliance Event log
       - name: group_policies
         group_policies:
           - name: ${data_vlan_group_policy}
